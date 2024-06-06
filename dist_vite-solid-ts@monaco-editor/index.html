@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + Solid + TS</title>
+    <script>
+      console.time("window.publicMonacoAPI.onceContextReady");
+      window.publicMonacoAPI = {
+        rootElemId: "root",
+        onceContextReady: (function () {
+          let resolve;
+          const promise = new Promise((res, rej) => {
+            resolve = res;
+            setTimeout(
+              rej,
+              3000,
+              'Timeout "window.publicMonacoAPI.onceContextReady.resolve()"',
+            );
+          }).catch(console.error);
+          Object.defineProperty(promise, "resolve", {
+            get() {
+              return resolve;
+            },
+          });
+          // window.localStorage.clear();
+          promise.then(() => {
+            console.timeEnd("window.publicMonacoAPI.onceContextReady");
+          });
+          return promise;
+        })(),
+      };
+    </script>
+    <script defer src="./assets/index-CeD0_lNU.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
