@@ -13,7 +13,7 @@
           let resolve;
           const promise = new Promise((res, rej) => {
             resolve = res;
-            setTimeout(rej, 3000, 'Timeout "window.publicMermaidAPI.onceContextReady.resolve()"');
+            setTimeout(rej, 60000, 'Timeout "window.publicMermaidAPI.onceContextReady.resolve()"');
           }).catch(console.error);
           Object.defineProperty(promise, "resolve", {
             get() {
