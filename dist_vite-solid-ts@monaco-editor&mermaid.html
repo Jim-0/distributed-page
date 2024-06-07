@@ -42,7 +42,7 @@
           promise.then(() => {
             console.timeEnd("window.publicMonacoAPI.onceContextReady");
             window.publicMermaidAPI.onceContextReady.then(() => {
-              const text = textStorage.text ?? "graph2\na";
+              const text = textStorage.text ?? "graph\na-->b";
               const onChange = (text) => {
                 textStorage.text = text;
                 window.publicMermaidAPI.SolidWebRender(
