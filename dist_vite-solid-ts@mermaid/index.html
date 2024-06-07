@@ -13,7 +13,11 @@
           let resolve;
           const promise = new Promise((res, rej) => {
             resolve = res;
-            setTimeout(rej, 60000, 'Timeout "window.publicMermaidAPI.onceContextReady.resolve()"');
+            setTimeout(
+              rej,
+              3000,
+              'Timeout "window.publicMermaidAPI.onceContextReady.resolve()"',
+            );
           }).catch(console.error);
           Object.defineProperty(promise, "resolve", {
             get() {
@@ -23,15 +27,16 @@
           // window.localStorage.clear();
           promise.then(() => {
             console.timeEnd("window.publicMermaidAPI.onceContextReady");
-            // window.publicMermaidAPI.SolidWebRender(() => window.publicMermaidAPI.MermaidView({text: 'graph TB\na-->b'}), document.getElementById('root'))
           });
           return promise;
         })(),
       };
     </script>
-    <script defer src="./assets/index-DmbYSjxn.js"></script>
+    
   </head>
   <body>
     <div id="root"></div>
+    <script id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DpQ61Mn1.js"></script>
+    <script id="vite-legacy-entry" data-src="./assets/index-legacy-1oTS4qUV.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
   </body>
 </html>
