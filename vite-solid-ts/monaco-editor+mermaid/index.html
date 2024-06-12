@@ -45,6 +45,7 @@
               const text = textStorage.text ?? "graph\na-->b";
               const onChange = (text) => {
                 textStorage.text = text;
+                document.getElementById("graph-container1").innerHTML = '';
                 window.publicMermaidAPI.SolidWebRender(
                   () =>
                     window.publicMermaidAPI.MermaidView({
@@ -53,7 +54,7 @@
                         height: "100vh",
                         overflow: "auto",
                       },
-                      text: text,
+                      text,
                     }),
                   document.getElementById("graph-container1"),
                 );

@@ -76,6 +76,7 @@
                         })
                         .catch((reason) => {
                           elem.textContent = `❌ ${reason}`;
+                          document.getElementById(`d${elemId}_`).remove();
                         });
                     }, 3);
                     return `<pre id="${elemId}">` + str + "</pre>";
@@ -93,6 +94,7 @@
                 "# monaco-editor+markdown-it+mermaid\n\n```mermaid\ngraph\na-->b\n```\n";
               const onChange = (text) => {
                 textStorage.text = text;
+                document.getElementById("graph-container1").innerHTML = '';
                 window.publicMarkdownItAPI.SolidWebRender(
                   () =>
                     window.publicMarkdownItAPI.MarkdownItView({
@@ -102,7 +104,7 @@
                         height: "100vh",
                         overflow: "auto",
                       },
-                      text: text,
+                      text,
                     }),
                   document.getElementById("graph-container1"),
                 );
