@@ -30,7 +30,7 @@
           });
           // window.localStorage.clear();
           const textStorage = {
-            key: "vite-solid-ts/monaco-editor+mermaid",
+            key: "vite-solid-ts/monaco-editor+markdown-it+mermaid",
             get text() {
               return localStorage.getItem(this.key);
             },
@@ -41,13 +41,62 @@
 
           promise.then(() => {
             console.timeEnd("window.publicMonacoAPI.onceContextReady");
-            window.publicMermaidAPI.onceContextReady.then(() => {
-              const text = textStorage.text ?? "graph\na-->b";
+            function crypto_randomUUID() {
+              return [1e7, -1e3, -4e3, -8e3, -1e11]
+                .join("")
+                .replace(/[018]/g, (char) => {
+                  const c = Number(char);
+                  return (
+                    c ^
+                    (crypto.getRandomValues(new Uint8Array(1))[0] &
+                      (15 >> (c / 4)))
+                  ).toString(16);
+                });
+            }
+
+            const { MarkdownIt } = window.publicMarkdownItAPI;
+            const { mermaid } = window.publicMermaidAPI;
+            const markdownIt = MarkdownIt({
+              html: true,
+              linkify: true,
+              typographer: true,
+              highlight: function (str, lang) {
+                switch (lang.toLowerCase()) {
+                  case "mermaid":
+                    const elemId = `mermaid_${crypto_randomUUID()}`;
+                    setTimeout(() => {
+                      const elem = document.getElementById(elemId);
+                      if (elem == null) return;
+                      const { textContent } = elem;
+                      if (textContent == null) return;
+                      mermaid
+                        .render(`${elemId}_`, str)
+                        .then(({ svg }) => {
+                          elem.innerHTML = svg;
+                        })
+                        .catch((reason) => {
+                          elem.textContent = `❌ ${reason}`;
+                        });
+                    }, 3);
+                    return `<pre id="${elemId}">` + str + "</pre>";
+                  default:
+                    return "";
+                }
+              },
+            });
+            Promise.all([
+              window.publicMarkdownItAPI.onceContextReady,
+              window.publicMermaidAPI.onceContextReady,
+            ]).then(() => {
+              const text =
+                textStorage.text ??
+                "# monaco-editor+markdown-it+mermaid\n\n```mermaid\ngraph\na-->b\n```\n";
               const onChange = (text) => {
                 textStorage.text = text;
-                window.publicMermaidAPI.SolidWebRender(
+                window.publicMarkdownItAPI.SolidWebRender(
                   () =>
-                    window.publicMermaidAPI.MermaidView({
+                    window.publicMarkdownItAPI.MarkdownItView({
+                      markdownIt,
                       style: {
                         width: "100%",
                         height: "100vh",
@@ -69,6 +118,31 @@
                 document.getElementById("text-container1"),
               );
             });
+          });
+          return promise;
+        })(),
+      };
+      console.time("window.publicMarkdownItAPI.onceContextReady");
+      window.publicMarkdownItAPI = {
+        // rootElemId: "root",
+        onceContextReady: (function () {
+          let resolve;
+          const promise = new Promise((res, rej) => {
+            resolve = res;
+            setTimeout(
+              rej,
+              60000,
+              'Timeout "window.publicMarkdownItAPI.onceContextReady.resolve()"',
+            );
+          }).catch(console.error);
+          Object.defineProperty(promise, "resolve", {
+            get() {
+              return resolve;
+            },
+          });
+          // window.localStorage.clear();
+          promise.then(() => {
+            console.timeEnd("window.publicMarkdownItAPI.onceContextReady");
           });
           return promise;
         })(),
@@ -118,6 +192,7 @@
         document.getElementById("vite-legacy-entry-1").getAttribute("data-src"),
       );
     </script>
+    <script defer src="../markdown-it/dist/assets/index-BCNaECNA.js"></script>
     <script
       id="vite-legacy-polyfill-2"
       src="../monaco-editor/dist/assets/polyfills-legacy-DqylgINn.js"
