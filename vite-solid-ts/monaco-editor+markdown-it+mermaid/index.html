@@ -61,11 +61,20 @@
               linkify: true,
               typographer: true,
               highlight: function (str, lang) {
+                window.onclickPreElem = (event, elem) => {
+                  if (!(event.metaKey || event.ctrlKey)) return;
+                  console.warn((window.elem = elem), elem.outerHTML);
+                  // elem.contentEditable = elem.contentEditable !== "true";
+                  const range = document.createRange();
+                  range.selectNodeContents(elem);
+                  window.getSelection().removeAllRanges();
+                  window.getSelection().addRange(range);
+                };
                 switch (lang.toLowerCase()) {
                   case "report":
                     // console.warn('highlight', [str, lang]);
                     /// monospaced font => Monospace, Monaco, Menlo
-                    return `<pre style="font-family: Times;font-size: 16px;background: none;">${(() => {
+                    return `<pre onclick="window.onclickPreElem(event, this)" style="font-family: Times;font-size: 16px;background: none;">${(() => {
                       let lastValue;
                       return str
                         .split("\n")
