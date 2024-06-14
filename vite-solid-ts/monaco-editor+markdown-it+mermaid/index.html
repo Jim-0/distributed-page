@@ -62,6 +62,48 @@
               typographer: true,
               highlight: function (str, lang) {
                 switch (lang.toLowerCase()) {
+                  case "report":
+                    // console.warn('highlight', [str, lang]);
+                    /// monospaced font => Monospace, Monaco, Menlo
+                    return `<pre style="font-family: Times;font-size: 16px;background: none;">${(() => {
+                      let lastValue;
+                      return str
+                        .split("\n")
+                        .map((lineStr) => {
+                          const valueA = lineStr.match(
+                            /^(\s*?)([0-9]+)\.\s*(.*)/,
+                          );
+                          const valueB = lineStr.match(
+                            /^([A-Z-]+[A-Za-z \(\)]*?):(.*)/,
+                          );
+                          if (valueA) {
+                            const indent = Math.round(valueA[1].length / 4);
+                            const index =
+                              indent === lastValue?.indent
+                                ? lastValue?.index + 1 ?? Number(valueA[2])
+                                : Number(valueA[2]);
+                            lastValue = {
+                              indent,
+                              index,
+                            };
+                            return `<span style="font-family: Monospace;">${Array.from(
+                              {
+                                length:
+                                  indent * 4 + 1 - String(index).length + 1,
+                              },
+                              () => " ",
+                            ).join("")}${index}</span>. ${valueA[3]}`;
+                          } else {
+                            lastValue = null;
+                          }
+                          if (!valueA && valueB) {
+                            return `<b>${valueB[1]}</b>:${valueB[2]}`;
+                          }
+                          return `${lineStr}`;
+                        })
+                        .join("\n");
+                    })()}</pre>`;
+                  // break;
                   case "mermaid":
                     const elemId = `mermaid_${crypto_randomUUID()}`;
                     setTimeout(() => {
@@ -94,7 +136,7 @@
                 "# monaco-editor+markdown-it+mermaid\n\n```mermaid\ngraph\na-->b\n```\n";
               const onChange = (text) => {
                 textStorage.text = text;
-                document.getElementById("graph-container1").innerHTML = '';
+                document.getElementById("graph-container1").innerHTML = "";
                 window.publicMarkdownItAPI.SolidWebRender(
                   () =>
                     window.publicMarkdownItAPI.MarkdownItView({
