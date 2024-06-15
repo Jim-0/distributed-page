@@ -61,20 +61,36 @@
               linkify: true,
               typographer: true,
               highlight: function (str, lang) {
-                window.onclickPreElem = (event, elem) => {
-                  if (!(event.metaKey || event.ctrlKey)) return;
-                  console.warn((window.elem = elem), elem.outerHTML);
-                  // elem.contentEditable = elem.contentEditable !== "true";
+                const selectElemContents = (elem) => {
                   const range = document.createRange();
                   range.selectNodeContents(elem);
                   window.getSelection().removeAllRanges();
                   window.getSelection().addRange(range);
                 };
+                window.onclickPreElem = (event, elem) => {
+                  if (!(event.metaKey || event.ctrlKey)) return;
+                  // elem.contentEditable = elem.contentEditable !== "true";
+                  selectElemContents(elem);
+                };
+                window.onkeydown = (event) => {
+                  switch (event.code) {
+                    case "KeyA":
+                      if (!(event.ctrlKey || event.metaKey)) return;
+                      const elem = document.activeElement;
+                      if (elem.tagName !== "PRE") return;
+                      selectElemContents(elem);
+                      break;
+                    default:
+                      return;
+                  };
+                  event.stopPropagation();
+                  event.preventDefault();
+                };
                 switch (lang.toLowerCase()) {
                   case "report":
                     // console.warn('highlight', [str, lang]);
                     /// monospaced font => Monospace, Monaco, Menlo
-                    return `<pre onclick="window.onclickPreElem(event, this)" style="font-family: Times;font-size: 16px;background: none;">${(() => {
+                    return `<pre tabIndex="-1" onclick="window.onclickPreElem(event, this)" style="font-family: Times;font-size: 16px;background: none;">${(() => {
                       let lastValue;
                       return str
                         .split("\n")
@@ -246,6 +262,11 @@
       );
     </script>
     <script defer src="../markdown-it/dist/assets/index-CKbdOiTW.js"></script>
+    <style>
+      #graph-container > pre :focus {
+        outline: -webkit-focus-ring-color solid 2px;
+      }
+    </style>
     <script
       id="vite-legacy-polyfill-2"
       src="../monaco-editor/dist/assets/polyfills-legacy-DqylgINn.js"
