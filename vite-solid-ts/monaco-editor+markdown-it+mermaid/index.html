@@ -2,11 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="../monaco-editor/dist/vite.svg"
-    />
+    <link rel="icon" type="image/svg+xml" href="./Octicons-markdown.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + Solid + TS</title>
     <script>
@@ -82,7 +78,7 @@
                       break;
                     default:
                       return;
-                  };
+                  }
                   event.stopPropagation();
                   event.preventDefault();
                 };
@@ -91,7 +87,7 @@
                     // console.warn('highlight', [str, lang]);
                     /// monospaced font => Monospace, Monaco, Menlo
                     return `<pre tabIndex="-1" onclick="window.onclickPreElem(event, this)" style="font-family: Times;font-size: 16px;background: none;">${(() => {
-                      let lastValue;
+                      const lastIndentToStoreMap = new Map();
                       return str
                         .split("\n")
                         .map((lineStr) => {
@@ -103,14 +99,14 @@
                           );
                           if (valueA) {
                             const indent = Math.round(valueA[1].length / 4);
+                            const lastValue = lastIndentToStoreMap.get(indent);
                             const index =
-                              indent === lastValue?.indent
-                                ? lastValue?.index + 1 ?? Number(valueA[2])
-                                : Number(valueA[2]);
-                            lastValue = {
+                              (lastValue && lastValue.index + 1) ||
+                              Number(valueA[2]);
+                            lastIndentToStoreMap.set(indent, {
                               indent,
                               index,
-                            };
+                            });
                             return `<span style="font-family: Monospace;">${Array.from(
                               {
                                 length:
@@ -119,7 +115,7 @@
                               () => " ",
                             ).join("")}${index}</span>. ${valueA[3]}`;
                           } else {
-                            lastValue = null;
+                            lastIndentToStoreMap.clear();
                           }
                           if (!valueA && valueB) {
                             return `<b>${valueB[1]}</b>:${valueB[2]}`;
