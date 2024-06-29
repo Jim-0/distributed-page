@@ -99,6 +99,10 @@
                           );
                           if (valueA) {
                             const indent = Math.round(valueA[1].length / 4);
+                            for (let [key] of lastIndentToStoreMap) {
+                              if (Number(key) <= indent) continue;
+                              lastIndentToStoreMap.delete(key);
+                            }
                             const lastValue = lastIndentToStoreMap.get(indent);
                             const index =
                               (lastValue && lastValue.index + 1) ||
