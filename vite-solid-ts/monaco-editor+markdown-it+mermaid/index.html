@@ -88,7 +88,7 @@
                     /// monospaced font => Monospace, Monaco, Menlo
                     return `<pre tabIndex="-1" onclick="window.onclickPreElem(event, this)" style="font-family: Times;font-size: 16px;background: none;">${(() => {
                       const lastIndentToStoreMap = new Map();
-                      return str
+                      const indent_index_line_arrays = str
                         .split("\n")
                         .map((lineStr) => {
                           const valueA = lineStr.match(
@@ -111,20 +111,56 @@
                               indent,
                               index,
                             });
-                            return `<span style="font-family: Monospace;">${Array.from(
-                              {
-                                length:
-                                  indent * 4 + 1 - String(index).length + 1,
-                              },
-                              () => " ",
-                            ).join("")}${index}</span>. ${valueA[3]}`;
+                            return [indent, index, valueA[3]];
                           } else {
                             lastIndentToStoreMap.clear();
                           }
                           if (!valueA && valueB) {
-                            return `<b>${valueB[1]}</b>:${valueB[2]}`;
+                            return [, , `<b>${valueB[1]}</b>:${valueB[2]}`];
                           }
-                          return `${lineStr}`;
+                          return [, , `${lineStr}`];
+                        });
+                      const offset_indent_index_line_arrays = (() => {
+                        let previousOffset;
+                        let previousIndent;
+                        let previousIndex;
+                        return indent_index_line_arrays
+                          .reduceRight(
+                            (previousValue, [indent, index, line]) => {
+                              let offset = previousOffset;
+                              if (
+                                previousIndent === indent &&
+                                index !== undefined &&
+                                previousIndex !== undefined
+                              ) {
+                                if (
+                                  previousIndex - 1 === index &&
+                                  String(previousIndex).length - 1 ===
+                                    String(index).length
+                                ) {
+                                  offset = (previousOffset ?? 0) + 1;
+                                }
+                              } else {
+                                offset = undefined;
+                              }
+                              [previousOffset, previousIndent, previousIndex] =
+                                [offset, indent, index];
+                              previousValue.push([offset, indent, index, line]);
+                              return previousValue;
+                            },
+                            [],
+                          )
+                          .reverse();
+                      })();
+                      return offset_indent_index_line_arrays
+                        .map(([offset, indent, index, line]) => {
+                          if (index === undefined) return line;
+                          return `<span style="font-family: Monospace;">${Array.from(
+                            {
+                              length: indent * 4 + (offset ?? 0),
+                            },
+                            () => " ",
+                          ).join("")}${index}</span>. ${line}`;
                         })
                         .join("\n");
                     })()}</pre>`;
